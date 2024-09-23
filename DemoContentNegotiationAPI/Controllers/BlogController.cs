@@ -35,8 +35,8 @@ namespace DemoContentNegotiationAPI.Controllers
             });
             blogs.Add(new Blog
             {
-                Name = "Another one?",
-                Description = "Another Blog?",
+                Name = "CN Blog",
+                Description = "Just A Blog For CN",
                 BlogPosts = blogPosts
             });
 

@@ -13,7 +13,6 @@ namespace DemoContentNegotiationAPI.CustomFormatter
     {
         public CsvOutputFormatter() {
             SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("text/csv"));
-            SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("application/xml"));
             SupportedEncodings.Add(Encoding.UTF8);
             SupportedEncodings.Add(Encoding.Unicode);
         }
@@ -25,65 +24,27 @@ namespace DemoContentNegotiationAPI.CustomFormatter
             }
             return false;
         }
-        //public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
-        //{
-        //    await using (var streamWriter = new StreamWriter(context.HttpContext.Response.Body, selectedEncoding, leaveOpen: true))
-        //    await using (var csvWriter = new CsvWriter(streamWriter, new CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture)))
-        //    {
-        //        if (context.HttpContext.Request.Headers["Accept"].ToString().Contains("text/csv", StringComparison.OrdinalIgnoreCase))
-        //        {
-        //            var stringBuilder = new StringBuilder();
-        //            if (context.Object is IEnumerable<Blog> blogs)
-        //            {
-        //                // Write multiple blogs to the CSV
-        //                foreach (var blog in blogs)
-        //                {
-        //                    FormatCsv(stringBuilder, blog);
-        //                }
-        //            }
-        //        }
-        //        else
-        //        {
-        //            await csvWriter.WriteRecordsAsync((IEnumerable)context.Object!);
-        //        }
-        //    }
-        //}
         public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
         {
             await using (var streamWriter = new StreamWriter(context.HttpContext.Response.Body, selectedEncoding, leaveOpen: true))
             {
-                var acceptHeader = context.HttpContext.Request.Headers["Accept"].ToString();
-
-                if (acceptHeader.Contains("text/csv", StringComparison.OrdinalIgnoreCase))
+                if (context.Object is IEnumerable<Blog> blogs)
                 {
-                    if (context.Object is IEnumerable<object> objects)
+                    var stringBuilder = new StringBuilder();
+
+                    stringBuilder.AppendLine("Name,Description,BlogPostsDetails"); // Adjust headers as needed
+
+                    foreach (var data in blogs)
                     {
-                        var stringBuilder = new StringBuilder();
-
-                        stringBuilder.AppendLine("Name,Description,BlogPostsDetails"); // Adjust headers as needed
-
-                        foreach (var data in objects)
-                        {
-                            FormatCsvForBlogObject(stringBuilder, blog: (Blog)data);
-                        }
-
-                        await streamWriter.WriteAsync(stringBuilder.ToString());
+                        FormatCsv(stringBuilder, blog: (Blog)data);
                     }
+
+                    await streamWriter.WriteAsync(stringBuilder.ToString());
                 }
-                else if (acceptHeader.Contains("application/xml", StringComparison.OrdinalIgnoreCase))
-                {
-                    // tạo XML response
-                    var xmlSerializer = new XmlSerializer(context.Object!.GetType());
-                    xmlSerializer.Serialize(streamWriter, context.Object);
-                }
-                // Header ko hỗ trợ sẽ trả về lỗi 406
             }
         }
 
-
-
-
-        private static void FormatCsvForBlogObject(StringBuilder stringBuilder, Blog blog)
+        private static void FormatCsv(StringBuilder stringBuilder, Blog blog)
         {
             var blogPostsDetails = string.Join(";", blog.BlogPosts.Select(bp => $"{bp.Title}:{bp.MetaDescription} (Published: {bp.Published})"));
 
