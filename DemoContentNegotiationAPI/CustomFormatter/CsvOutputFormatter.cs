@@ -24,23 +24,35 @@ namespace DemoContentNegotiationAPI.CustomFormatter
             }
             return false;
         }
+        //public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
+        //{
+        //    await using (var streamWriter = new StreamWriter(context.HttpContext.Response.Body, selectedEncoding, leaveOpen: true))
+        //    await using (var csvWriter = new CsvWriter(streamWriter, new CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture)))
+        //    {
+        //        await csvWriter.WriteRecordsAsync((IEnumerable)context.Object!);
+        //    }
+        //}
         public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
         {
             await using (var streamWriter = new StreamWriter(context.HttpContext.Response.Body, selectedEncoding, leaveOpen: true))
             {
+                var stringBuilder = new StringBuilder();
+
                 if (context.Object is IEnumerable<Blog> blogs)
                 {
-                    var stringBuilder = new StringBuilder();
-
                     stringBuilder.AppendLine("Name,Description,BlogPostsDetails"); // Adjust headers as needed
 
                     foreach (var data in blogs)
                     {
                         FormatCsv(stringBuilder, blog: (Blog)data);
                     }
-
-                    await streamWriter.WriteAsync(stringBuilder.ToString());
                 }
+                else if(context.Object is Blog blog)
+                {
+                    stringBuilder.AppendLine("Name,Description,BlogPostsDetails");
+                    FormatCsv(stringBuilder, blog);
+                }
+                await streamWriter.WriteAsync(stringBuilder.ToString());
             }
         }
 
