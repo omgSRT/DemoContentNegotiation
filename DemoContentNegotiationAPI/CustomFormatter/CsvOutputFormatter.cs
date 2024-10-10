@@ -14,7 +14,7 @@ namespace DemoContentNegotiationAPI.CustomFormatter
         public CsvOutputFormatter() {
             SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("text/csv"));
             SupportedEncodings.Add(Encoding.UTF8);
-            SupportedEncodings.Add(Encoding.Unicode);
+            //SupportedEncodings.Add(Encoding.Unicode);
         }
         protected override bool CanWriteType(Type? type)
         {
@@ -24,14 +24,6 @@ namespace DemoContentNegotiationAPI.CustomFormatter
             }
             return false;
         }
-        //public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
-        //{
-        //    await using (var streamWriter = new StreamWriter(context.HttpContext.Response.Body, selectedEncoding, leaveOpen: true))
-        //    await using (var csvWriter = new CsvWriter(streamWriter, new CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture)))
-        //    {
-        //        await csvWriter.WriteRecordsAsync((IEnumerable)context.Object!);
-        //    }
-        //}
         public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
         {
             await using (var streamWriter = new StreamWriter(context.HttpContext.Response.Body, selectedEncoding, leaveOpen: true))
