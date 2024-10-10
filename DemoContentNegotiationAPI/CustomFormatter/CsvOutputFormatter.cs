@@ -32,7 +32,7 @@ namespace DemoContentNegotiationAPI.CustomFormatter
 
                 if (context.Object is IEnumerable<Blog> blogs)
                 {
-                    stringBuilder.AppendLine("Name,Description,BlogPostsDetails"); // Adjust headers as needed
+                    stringBuilder.AppendLine("Name,Description,BlogPostsDetails");
 
                     foreach (var data in blogs)
                     {
@@ -41,7 +41,6 @@ namespace DemoContentNegotiationAPI.CustomFormatter
                 }
                 else if(context.Object is Blog blog)
                 {
-                    stringBuilder.AppendLine("Name,Description,BlogPostsDetails");
                     FormatCsv(stringBuilder, blog);
                 }
                 await streamWriter.WriteAsync(stringBuilder.ToString());
